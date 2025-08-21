@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - RDP Wrapper Enhanced{% endblock %}
+
+{% block content %}
+<div x-data="dashboardData()" x-init="init()">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p class="mt-2 text-gray-600">Monitor and manage your RDP Wrapper installation</p>
+    </div>
+
+    <!-- Status Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">✓</span>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Service Status</p>
+                    <p class="text-2xl font-bold text-gray-900" x-text="status.service"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">#</span>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Active Sessions</p>
+                    <p class="text-2xl font-bold text-gray-900" x-text="status.sessions"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">%</span>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">CPU Usage</p>
+                    <p class="text-2xl font-bold text-gray-900" x-text="status.cpu + '%'"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">!</span>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Security Alerts</p>
+                    <p class="text-2xl font-bold text-gray-900" x-text="status.alerts"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow mb-8">
+        <div class="px-6 py-4 border-b">
+            <h2 class="text-lg font-semibold text-gray-900">Quick Actions</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button @click="restartService()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                    Restart Service
+                </button>
+                <button @click="updateConfig()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+                    Update Config
+                </button>
+                <button @click="runSecurityScan()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition">
+                    Security Scan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b">
+            <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <template x-for="activity in activities" :key="activity.id">
+                    <div class="flex items-center justify-between py-3 border-b last:border-b-0">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900" x-text="activity.action"></p>
+                            <p class="text-xs text-gray-500" x-text="activity.timestamp"></p>
+                        </div>
+                        <span :class="activity.status === 'success' ? 'text-green-600' : 'text-red-600'" 
+                              class="text-sm font-medium" x-text="activity.status"></span>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function dashboardData() {
+    return {
+        status: {
+            service: 'Running',
+            sessions: 0,
+            cpu: 0,
+            alerts: 0
+        },
+        activities: [],
+        
+        async init() {
+            await this.loadStatus();
+            await this.loadActivities();
+            setInterval(() => this.loadStatus(), 30000); // Refresh every 30 seconds
+        },
+        
+        async loadStatus() {
+            try {
+                const data = await apiRequest('/api/status');
+                this.status = data;
+            } catch (error) {
+                console.error('Failed to load status:', error);
+            }
+        },
+        
+        async loadActivities() {
+            try {
+                const data = await apiRequest('/api/activities');
+                this.activities = data.slice(0, 5); // Show last 5 activities
+            } catch (error) {
+                console.error('Failed to load activities:', error);
+            }
+        },
+        
+        async restartService() {
+            try {
+                await apiRequest('/api/service/restart', { method: 'POST' });
+                showNotification('Service restarted successfully', 'success');
+                await this.loadStatus();
+            } catch (error) {
+                showNotification('Failed to restart service', 'error');
+            }
+        },
+        
+        async updateConfig() {
+            try {
+                await apiRequest('/api/config/update', { method: 'POST' });
+                showNotification('Configuration updated successfully', 'success');
+            } catch (error) {
+                showNotification('Failed to update configuration', 'error');
+            }
+        },
+        
+        async runSecurityScan() {
+            try {
+                const result = await apiRequest('/api/security/scan', { method: 'POST' });
+                showNotification(`Security scan completed: ${result.issues} issues found`, 
+                    result.issues > 0 ? 'warning' : 'success');
+            } catch (error) {
+                showNotification('Failed to run security scan', 'error');
+            }
+        }
+    }
+}
+</script>
+{% endblock %}
