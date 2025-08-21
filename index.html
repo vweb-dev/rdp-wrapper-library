@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Settings Optimizer - RDP Wrapper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .panel:hover {
+            border-color: #555;
+            transform: translateY(-2px);
+        }
+
+        .panel h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric .label {
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        .metric .value {
+            color: #fff;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            margin: 0.25rem;
+        }
+
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0052a3;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #00cc66;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #00a352;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+
+        .btn-secondary:hover {
+            background: #444;
+            transform: translateY(-1px);
+        }
+
+        .recommendations-container,
+        .history-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #111;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        .recommendation-item,
+        .history-item {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #222;
+            border-radius: 6px;
+            border-left: 3px solid #0066cc;
+        }
+
+        .recommendation-header,
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-name,
+        .timestamp {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .confidence {
+            color: #00cc66;
+            font-size: 0.9rem;
+        }
+
+        .rollback-btn {
+            background: #cc3300;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .rollback-btn:hover {
+            background: #a32900;
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .status-message.success {
+            background: #003d1a;
+            color: #00cc66;
+            border: 1px solid #00cc66;
+        }
+
+        .status-message.error {
+            background: #3d0000;
+            color: #ff6666;
+            border: 1px solid #ff6666;
+        }
+
+        .status-message.info {
+            background: #001a3d;
+            color: #66b3ff;
+            border: 1px solid #66b3ff;
+        }
+
+        .status-message.warning {
+            background: #3d3300;
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Settings Optimizer</h1>
+            <p>Intelligent optimization for RDP Wrapper performance</p>
+        </div>
+
+        <div class="main-content">
+            <div class="panel">
+                <h3>System Performance</h3>
+                <div class="metric">
+                    <span class="label">CPU Usage:</span>
+                    <span class="value" id="cpu-usage">--</span>
+                </div>
+                <div class="metric">
+                    <span class="label">Memory Usage:</span>
+                    <span class="value" id="memory-usage">--</span>
+                </div>
+                <div class="metric">
+                    <span class="label">Network Latency:</span>
+                    <span class="value" id="network-latency">--</span>
+                </div>
+                <div class="metric">
+                    <span class="label">Active Connections:</span>
+                    <span class="value" id="active-connections">--</span>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>AI Recommendations</h3>
+                <button id="get-recommendations" class="btn btn-primary">Get AI Recommendations</button>
+                <div id="recommendations-container" class="recommendations-container" style="display: none;">
+                    <div id="recommendations-list"></div>
+                    <button id="apply-recommendations" class="btn btn-success" style="display: none;">Apply Recommendations</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel full-width">
+            <h3>Optimization History</h3>
+            <button id="view-history" class="btn btn-secondary">View History</button>
+            <div id="history-container" class="history-container" style="display: none;">
+                <div id="history-list"></div>
+            </div>
+        </div>
+
+        <div class="panel full-width">
+            <h3>Status</h3>
+            <div id="status-message" class="status-message"></div>
+        </div>
+    </div>
+
+    <div id="ai-optimizer-container"></div>
+
+    <script src="settings-new.js"></script>
+</body>
+</html>
