@@ -1,3 +1,19 @@
+<!-- VWEB:AUTO-README:START -->
+<div align="center"><img src="assets/vweb-readme-banner.svg" width="100%" alt="rdp-wrapper-library project graphic" /></div>
+
+### Code-derived project snapshot
+
+| Attribute | Detected value |
+|---|---|
+| Latest source revision | `06eed97f69d6` |
+| Tracked files reviewed | 70 |
+| Framework and platform indicators | Python  /  HTML  /  JavaScript |
+| Source file types | Python (19), HTML (4), JavaScript (3) |
+| Main directories | rdp_wrapper_enhanced, src-x86-x64-Fusix, res, src-rdpconfig, src-rdpcheck, bin, src-x86-binarymaster |
+
+> This section is regenerated from tracked filenames and manifests on code updates. It is not a QA or production-readiness certification. Handwritten project documentation is preserved.
+<!-- VWEB:AUTO-README:END -->
+
 # RDP Wrapper Library by Stas'M
 
 [![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/rdpwrap)
